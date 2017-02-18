@@ -1,0 +1,45 @@
+{
+    "key": "jira-dashboard-item-example",
+    "name": "David Liu Jira Dashboard Item",
+    "description": "Jira Dashboard Item",
+    "vendor": {
+        "name": "David Liu",
+        "url": "https://anythingsimple.blogspot.ca"
+    },
+    "baseUrl": "{{localBaseUrl}}",
+    "links": {
+        "self": "{{localBaseUrl}}/atlassian-connect.json",
+        "homepage": "{{localBaseUrl}}/atlassian-connect.json"
+    },
+    "authentication": {
+        "type": "jwt"
+    },
+    "lifecycle": {
+        "installed": "/installed"
+    },
+    "scopes": [
+        "READ",
+        "WRITE"
+    ],
+    "modules": {
+        "jiraDashboardItems": [
+          {
+            "name":{
+              "value": "Issues in project",
+              "i18n": "issues.in.project.i18n"
+            },
+            "url": "/issues-in-project?dashboard={dashboard.id}&dashboardItem={dashboardItem.id}",
+            "key": "iframe-requests",
+            "description": {
+              "value": "Issues in project dashboard item",
+              "i18n": "issues.in.project.description.i18n"
+            },
+            "thumbnailUrl": "/thumbnail",
+            "configurable": true,
+            "conditions": [{
+                "condition": "/condition?view={dashboardItem.viewType}&dashboard={dashbaord.id}&dashboardItem={dashboardItem.id}"
+              }]
+          }
+        ]
+    }
+}
