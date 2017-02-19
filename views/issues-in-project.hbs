@@ -48,6 +48,10 @@
             <label for='selectedProject'>Project:<span class='aui-icon icon-required'>required</span></label>
             <select class='select' id='selectedProject'></select>
         </div>
+        <div class='field-group'>
+            <label for='selectedAssignee'>Assignee:</label>
+            <select class='select' id='selectedAssignee'></select>
+        </div>
         <div class='buttons-container'>
             <button type='submit' id='saveConfiguration' class='aui-button'>Save</button>
         </div>
@@ -78,7 +82,7 @@
                 $('#issues-in-project').html(this.template());
                 this.setTitle(configuration);
                 var that = this;
-                new IssueSearchService().getIssues(configuration.project, function(issues) {
+                new IssueSearchService().getIssues(configuration.project, configuration.assignee, function(issues) {
                     var issueTable = $('#issuesTable');
                     $.each(issues, function(i, $issue) {
                         issueTable.append(that.rowTemplate({issue: $issue}));
@@ -90,10 +94,10 @@
 
     var IssueSearchService = function() {
         return {
-            getIssues: function(project, callback) {
+            getIssues: function(project, assignee, callback) {
                 AP.require(['request'], function(request) {
                     request({
-                        url: '/rest/api/2/search?jql=' + encodeURIComponent('project = ' + project),
+                        url: '/rest/api/2/search?jql=' + encodeURIComponent('project = ' + project + (assignee === 'None' ? '' : '& assignee = ' + assignee)),
                         success: function(response) {
                             var issues = JSON.parse(response).issues;
                             callback(issues);
@@ -129,6 +133,33 @@
                 });
 
             },
+
+            addAssignees: function(config) {
+              AP.require(['request'], function(request) {
+                request({
+                  url: '/rest/api/2/user/search?startAt=0&maxResults=1000&username=%',
+                  //url: '/rest/api/2/user/properties',
+                  success: function(response) {
+                    var users = JSON.parse(response);
+                    var selectedAssignee = $('#selectedAssignee');
+                    var optionNone = $('<option>', {value: 'None'})
+                              .text('None');
+                    selectedAssignee.append(optionNone);
+                    $.each(users, function(index, user){
+                      if (!user.name.startsWith('addon_')) {
+                        var select = $('<option>', {value: user.name})
+                              .text(user.name);
+                        if (config && config.assignee == user.name) {
+                          selectedAssignee.append(select.attr('selected', 'selected'));
+                        }
+                        console.log('addAssignees ' + user);
+                        selectedAssignee.append(select);
+                      }
+                    });
+                  }
+                });
+              });
+            },
             render: function(config) {
                 if (config) {
                     $('#issues-in-project').html(this.template({itemTitle : config.title}));
@@ -136,12 +167,14 @@
                     $('#issues-in-project').html(this.template({itemTitle : 'Issues for project'}));
                 }
                 this.addProjects(config);
+                this.addAssignees(config);
                 $('#saveConfiguration').click(function(e) {
                     e.preventDefault();
                     var service = new DashboardItemConfigurationService();
                     var $title = $('#itemTitle').val();
                     var $project = $('#selectedProject').find(':selected').val();
-                    var configuration = {project: $project, title: $title};
+                    var $assignee = $('#selectedAssignee').find(':selected').val();
+                    var configuration = {project: $project, title: $title, assignee: $assignee};
                     service.save(configuration, function() {
                         new IssueTableView().render(configuration);
                     });
@@ -157,6 +190,7 @@
                     request({
                         url: '/rest/api/2/dashboard/{{{dashboard}}}/items/{{{dashboardItem}}}/properties/itemkey',
                         success: function(response) {
+                            console.log('getConfiguration ' + response);
                             configuredCallback(JSON.parse(response).value);
                         }
                     });

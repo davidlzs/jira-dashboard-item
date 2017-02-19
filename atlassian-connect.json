@@ -6,6 +6,7 @@
         "name": "David Liu",
         "url": "https://anythingsimple.blogspot.ca"
     },
+
     "baseUrl": "{{localBaseUrl}}",
     "links": {
         "self": "{{localBaseUrl}}/atlassian-connect.json",

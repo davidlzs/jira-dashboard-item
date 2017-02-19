@@ -1,7 +1,3 @@
-# Atlassian Add-on using Express
+# Atlassian Add-on using Express - JIRA Dashboard Item
 
-Congratulations! You've successfully created an Atlassian Connect Add-on using the Express web application framework.
-
-## What's next?
-
-[Read the docs](https://bitbucket.org/atlassian/atlassian-connect-express/src/master/README.md#markdown-header-install-dependencies).
+Example Atlassian Add-on built with Atalassian Connect. It is a simple dashboard item. This project is forked from Atlassian's example project.
